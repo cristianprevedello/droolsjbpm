@@ -61,10 +61,24 @@ public interface FactField
     /**
      * Returns the value of this field in the given fact.
      * 
-     * @param the fact from which the field will be read.
+     * @param bean the fact from which the field will be read.
      * 
      * @return the value of the field on the given fact.
      */
     public Object get(Object bean);
+
+     /**
+     * Return the positional index of this field in the bean
+     *
+     * @return the positional index of this field in the bean
+     */
+    public int getIndex();
+
+    /**
+     * Sets the positional index of this field in the bean
+     *
+     * @param index the positional index of this field in the bean
+     */
+    public void setIndex(int index);
 
 }

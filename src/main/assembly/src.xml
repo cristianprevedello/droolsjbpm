@@ -26,13 +26,13 @@
         <include>drools-examples/**</include>
         <include>drools-factconstraint/**</include>
         <include>drools-grid/**</include>
-        <include>drools-guvnor/**</include>
-        <include>drools-ide-common/**</include>
+        <include>guvnor-webapp/**</include>
+        <include>droolsjbpm-ide-common/**</include>
         <include>drools-jsr94/**</include>
         <include>drools-persistence-jpa/**</include>
         <include>drools-pipeline/**</include>
         <include>drools-planner/**</include>
-        <include>drools-repository/**</include>
+        <include>guvnor-repository/**</include>
         <include>drools-rhq-plugin/**</include>
         <include>drools-server/**</include>
         <include>drools-simulator/**</include>
@@ -42,8 +42,8 @@
         <include>*.txt</include>
       </includes>
       <excludes>
-        <exclude>drools-guvnor/repository/**</exclude>
-        <exclude>drools-repository/repository/**</exclude>
+        <exclude>guvnor-webapp/repository/**</exclude>
+        <exclude>guvnor-repository/repository/**</exclude>
         <exclude>drools-eclipse/org.drools.eclipse/lib/**</exclude>
         <exclude>drools-eclipse/org.drools.eclipse/help/**</exclude>
         <exclude>**/*.log/**</exclude>

@@ -216,18 +216,18 @@
     <!-- These are just the soa modules -->
     <!--<module>drools-ant</module>--><!-- Already split-off to separate repo -->
     <module>drools-api</module>
-    <module>drools-camel</module>
+    <!--<module>drools-camel</module>--><!-- Already split-off to separate repo -->
     <module>drools-compiler</module>
     <module>drools-core</module>
-    <module>drools-container</module>
+    <!--<module>drools-container</module>--><!-- Already split-off to separate repo -->
     <module>drools-decisiontables</module>
-    <module>drools-grid</module>
+    <!--<module>drools-grid</module>--><!-- Already split-off to separate repo -->
     <!--<module>drools-guvnor</module>--><!-- Already split-off to separate repo -->
     <!--<module>drools-ide-common</module>--><!-- Already split-off to separate repo -->
     <module>drools-jsr94</module>
     <module>drools-persistence-jpa</module>
     <!--<module>drools-repository-parent</module>--><!-- Already split-off to separate repo -->
-    <module>drools-server</module>
+    <!--<module>drools-server</module>--><!-- Already split-off to separate repo -->
     <module>drools-templates</module>
     <module>drools-verifier</module>
     <!-- Other modules are defined in the not-soa profile -->
@@ -244,8 +244,8 @@
       <modules>
         <module>drools-clips</module>
         <!--<module>drools-planner</module>--><!-- Already split-off to separate repo -->
-        <module>drools-pipeline</module>
-        <module>drools-simulator</module>
+        <!--<module>drools-pipeline</module>--><!-- Already split-off to separate repo -->
+        <!--<module>drools-simulator</module>--><!-- Already split-off to separate repo -->
         <module>osgi-bundles</module>
       </modules>
       <build>
@@ -812,27 +812,22 @@
       </dependency>
       <dependency>
         <groupId>org.drools</groupId>
-        <artifactId>drools-repository-parent</artifactId>
+        <artifactId>guvnor-repository</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>org.drools</groupId>
-        <artifactId>drools-repository</artifactId>
+        <artifactId>guvnor-repository-connector-jcr</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>org.drools</groupId>
-        <artifactId>drools-repository-jcr-connector</artifactId>
+        <artifactId>guvnor-repository-connector-jackrabbit</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>org.drools</groupId>
-        <artifactId>drools-repository-jackrabbit-connector</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.drools</groupId>
-        <artifactId>drools-repository-modeshape-connector</artifactId>
+        <artifactId>guvnor-repository-connector-modeshape</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -840,9 +835,14 @@
         <artifactId>drools-pipeline</artifactId>
         <version>${project.version}</version>
       </dependency>
+      <!--<dependency>--><!-- JBRULES-2707 Split up guvnor-webapp into guvnor-gwt-client and guvnor-webapp -->
+        <!--<groupId>org.drools</groupId>-->
+        <!--<artifactId>guvnor-gwt-client</artifactId>-->
+        <!--<version>${project.version}</version>-->
+      <!--</dependency>-->
       <dependency>
         <groupId>org.drools</groupId>
-        <artifactId>drools-guvnor</artifactId>
+        <artifactId>guvnor-webapp</artifactId>
         <type>war</type>
         <version>${project.version}</version>
       </dependency>
@@ -868,7 +868,7 @@
       </dependency>
       <dependency>
         <groupId>org.drools</groupId>
-        <artifactId>drools-ide-common</artifactId>
+        <artifactId>droolsjbpm-ide-common</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -1156,7 +1156,7 @@
         <artifactId>jboss-remoting</artifactId>
         <version>1.4.4</version>
       </dependency>
-      <!-- Logging for drools-repository and drools-planner -->
+      <!-- Logging for guvnor-repository and drools-planner -->
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
@@ -1184,7 +1184,7 @@
         <artifactId>jcl-over-slf4j</artifactId>
         <version>1.6.0</version>
       </dependency>
-      <!-- drools-repository -->
+      <!-- guvnor-repository -->
       <dependency>
         <groupId>org.apache.jackrabbit</groupId>
         <artifactId>jackrabbit-core</artifactId>
@@ -1231,7 +1231,7 @@
         <artifactId>hsqldb</artifactId>
         <version>1.8.0.10</version>
       </dependency>
-      <!-- drools-guvnor -->
+      <!-- guvnor-webapp -->
       <dependency>
         <groupId>javax.servlet</groupId>
         <artifactId>servlet-api</artifactId>

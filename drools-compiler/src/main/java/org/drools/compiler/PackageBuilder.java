@@ -896,14 +896,15 @@ public class PackageBuilder {
     }
 
 
-
-
-
-
-
-
-
-
+    /**
+     * Tries to determine the namespace (package) of a simple type chosen to be the superclass of a declared bean.
+     * Looks among imports, local declarations and previous declarations.
+     * Means that a class can't extend another class declared in package that has not been loaded yet.
+     * @param sup               the simple name of the superclass
+     * @param packageDescr      the descriptor of the package the base class is declared in
+     * @param pkgRegistry       the current package registry
+     * @return the fully qualified name of the superclass
+     */
     private String resolveSuperType(String sup, PackageDescr packageDescr, PackageRegistry pkgRegistry) {
 
         //look among imports
@@ -936,11 +937,19 @@ public class PackageBuilder {
     }
 
 
+    /**
+     * Resolves and sets the superclass (name and package) for a given type declaration descriptor
+     * The declared supertype, if any, may be a simple name or a fully qualified one. In the former case,
+     * the simple name could be the local name of some f.q.n. which has to be resolved
+     * @param typeDescr         the descriptor of the declared superclass whose superclass will be identified
+     * @param packageDescr      the descriptor of the package the class is declared in
+     */
     private void fillSuperType(TypeDeclarationDescr typeDescr, PackageDescr packageDescr) {
         String declaredSuperType = typeDescr.getSuperTypeName();
         if (declaredSuperType != null) {
             int separator = declaredSuperType.lastIndexOf(".");
             boolean qualified = separator > 0;
+            // check if a simple name corresponds to a f.q.n.
             if (! qualified) {
                 declaredSuperType =
                         resolveSuperType(declaredSuperType, packageDescr,  this.pkgRegistryMap.get( typeDescr.getNamespace() ));
@@ -948,6 +957,7 @@ public class PackageBuilder {
 
             }
 
+            // sets supertype name and supertype package
             separator = declaredSuperType.lastIndexOf(".");
                 typeDescr.setSuperTypeName(declaredSuperType.substring(separator+1));
                 typeDescr.setSuperTypeNamespace(declaredSuperType.substring(0,separator));
@@ -1031,8 +1041,22 @@ public class PackageBuilder {
 //     }
 
 
-
-    private void mergeInheritedFields(TypeDeclarationDescr typeDescr, PackageRegistry pack) {
+    /**
+     * In order to build a declared class, the fields inherited from its superclass(es) are added to its declaration.
+     * Inherited descriptors are marked as such to distinguish them from native ones.
+     * Various scenarioes are possible.
+     *   (i) The superclass has been declared in the DRL as well : the fields are cloned as inherited
+     *   (ii) The superclass is imported (external), but some of its fields have been tagged with metadata
+     *   (iii) The superclass is imported.
+     *
+     * The search for field descriptors is carried out in the order. (i) and (ii+iii) are mutually exclusive. The
+     * search is as such:
+     *   (i) The superclass' declared fields are used to build the base class additional fields
+     *   (iii) The superclass is inspected to discover its (public) fields, from which descriptors are generated
+     *   (ii) Both (i) and (iii) are applied, but the declared fields override the inspected ones
+     * @param typeDescr The base class descriptor, to be completed with the inherited fields descriptors
+     */
+    private void mergeInheritedFields(TypeDeclarationDescr typeDescr) {
         if (typeDescr.getSuperTypeName() == null)
             return;
 
@@ -1044,19 +1068,26 @@ public class PackageBuilder {
         boolean isSuperClassDeclared = true;    //in the same package, or in a previous one
         boolean isSuperClassTagged = false;
 
+        PackageRegistry registry = this.pkgRegistryMap.get(superTypePackageName);
+        Package pack = null;
+        if (registry != null)
+            pack = registry.getPackage();
 
+        // if a class is declared in DRL, its package can't be null? The default package is replaced by "defaultpkg"
         if (pack != null) {
 
-            TypeDeclaration superTypeDeclaration = pack.getPackage().getTypeDeclaration(simpleSuperTypeName);
+            // look for the supertype declaration in available packages
+            TypeDeclaration superTypeDeclaration = pack.getTypeDeclaration(simpleSuperTypeName);
 
             if (superTypeDeclaration != null) {
                 ClassDefinition classDef = superTypeDeclaration.getTypeClassDef();
-
+                    // inherit fields
                     for (FactField fld : classDef.getFields()) {
                         TypeFieldDescr inheritedFlDescr = TypeFieldDescr.buildInheritedFromDefinition(fld);
                         fieldMap.put(inheritedFlDescr.getFieldName(),inheritedFlDescr);
                     }
 
+                    // new classes are already distinguished from tagged external classes
                     isSuperClassTagged = ! superTypeDeclaration.isNovel();
             } else {
                 isSuperClassDeclared = false;
@@ -1066,12 +1097,11 @@ public class PackageBuilder {
             isSuperClassDeclared = false;
         }
 
-
+        // look for the class externally
         if (! isSuperClassDeclared || isSuperClassTagged ) {
             String fullSuper = superTypePackageName + "." + simpleSuperTypeName;
             try {
-                ClassFieldInspector inspector = new ClassFieldInspector(pack.getTypeResolver().resolveType(fullSuper));
-
+                ClassFieldInspector inspector = new ClassFieldInspector(registry.getTypeResolver().resolveType(fullSuper));
                 for (String name : inspector.getGetterMethods().keySet()) {
                     if (! inspector.isNonGetter(name) && ! "class".equals(name)) {
                         TypeFieldDescr inheritedFlDescr = new TypeFieldDescr(name,new PatternDescr(inspector.getFieldTypes().get(name).getSimpleName()));
@@ -1092,7 +1122,7 @@ public class PackageBuilder {
         }
 
 
-
+        // finally, locally declared fields are merged. The map swap ensures that super-fields are added in order, before the subclass' ones
         fieldMap.putAll(typeDescr.getFields());
         typeDescr.setFields(fieldMap);
 
@@ -1129,7 +1159,7 @@ public class PackageBuilder {
             pkgRegistry = this.pkgRegistryMap.get( typeDescr.getNamespace() );
 
             //descriptor needs fields inherited from superclass
-            mergeInheritedFields(typeDescr, pkgRegistry);
+            mergeInheritedFields(typeDescr);
 
 
             // Go on with the build
@@ -1166,7 +1196,8 @@ public class PackageBuilder {
                 try {
 
 
-
+                    // the type declaration is generated in any case (to be used by subclasses, if any)
+                    // the actual class will be generated only if needed
                     generateDeclaredBean( typeDescr,
                             type,
                             pkgRegistry );
@@ -1231,13 +1262,20 @@ public class PackageBuilder {
     }
 
 
-
-
-
-    private boolean isNovelClass(TypeDeclarationDescr typeDescr, PackageRegistry pkgRegistry) {
+    /**
+     * Checks whether a declaration is novel, or is a retagging of an external one
+     * @param typeDescr
+     * @return
+     */
+    private boolean isNovelClass(TypeDeclarationDescr typeDescr) {
         try {
-            pkgRegistry.getTypeResolver().resolveType(typeDescr.getNamespace() + "." + typeDescr.getTypeName());
-            return false;
+            PackageRegistry reg = this.pkgRegistryMap.get(typeDescr.getNamespace());
+            if (reg != null) {
+                reg.getTypeResolver().resolveType(typeDescr.getNamespace() + "." + typeDescr.getTypeName());
+                return false;
+            } else {
+                return true;
+            }
         } catch (ClassNotFoundException cnfe) {
             return true;
         }
@@ -1292,6 +1330,7 @@ public class PackageBuilder {
                                       TypeDeclaration type,
                                       PackageRegistry pkgRegistry) {
 
+        // extracts type, supertype and interfaces
         String fullName = typeDescr.getNamespace() + "." + typeDescr.getTypeName();
 
         String fullSuperType = typeDescr.getSuperTypeName() != null ?
@@ -1300,8 +1339,11 @@ public class PackageBuilder {
 
         String[] interfaces = new String[] {Serializable.class.getName()};
 
+        // prepares a class definition
         ClassDefinition def = new ClassDefinition( fullName, fullSuperType, interfaces);
 
+        // fields definitions are created. will be used by subclasses, if any.
+        // Fields are SORTED in the process
         if (typeDescr.getFields().size() > 0 ) {
             PriorityQueue<FieldDefinition> fieldDefs = sortFields(typeDescr.getFields(), pkgRegistry);
             while (fieldDefs.size() > 0) {
@@ -1310,7 +1352,8 @@ public class PackageBuilder {
             }
         }
 
-        type.setNovel(isNovelClass(typeDescr,pkgRegistry));
+        // check whether it is necessary to build the class or not
+        type.setNovel(isNovelClass(typeDescr));
 
         if (type.isNovel()) {
             try {
@@ -1333,7 +1376,16 @@ public class PackageBuilder {
     }
 
 
-
+    /**
+     * Sorts a bean's fields according to the positional index metadata.
+     * The order is as follows
+     *   (i) as defined using the @position metadata
+     *   (ii) as resulting from the inspection of an external java superclass, if applicable
+     *   (iii) in declaration order, superclasses first
+     * @param flds
+     * @param pkgRegistry
+     * @return
+     */
     private PriorityQueue<FieldDefinition> sortFields(Map<String, TypeFieldDescr> flds, PackageRegistry pkgRegistry) {
         PriorityQueue<FieldDefinition> queue = new PriorityQueue<FieldDefinition>();
              int last = 0;
@@ -1870,14 +1922,14 @@ public class PackageBuilder {
     }
 
 
-
-
-
-
-
-
-
-
+    /**
+     * Utility method to sort declared beans. Linearizes the hierarchy, i.e.generates a sequence of
+     * declaration such that, if Sub is subclass of Sup, then the index of Sub will be > than the index
+     * of Sup in the resulting collection.
+     * This ensures that superclasses are processed before their subclasses
+     * @param typeDeclarations
+     * @return
+     */
     public static Collection<TypeDeclarationDescr> sortByHierarchy(List<TypeDeclarationDescr> typeDeclarations) {
 
            Node<TypeDeclarationDescr> root = new Node<TypeDeclarationDescr>(null);
@@ -1924,8 +1976,10 @@ public class PackageBuilder {
        }
 
 
-
-
+    /**
+     * Utility class for the sorting algorithm
+     * @param <T>
+     */
        private static class Node<T> {
            private String key;
            private T data;

@@ -16,6 +16,8 @@
 
 package org.drools.lang.descr;
 
+import org.drools.definition.type.FactField;
+
 import java.util.*;
 
 
@@ -28,6 +30,7 @@ public class TypeFieldDescr extends BaseDescr implements Comparable<TypeFieldDes
     private PatternDescr        pattern;
     private Map<String, Map<String, String>> metaAttributes;
     private int                 index = -1;
+    private boolean             inherited = false;
 
     public TypeFieldDescr() {
         this( null );
@@ -41,6 +44,33 @@ public class TypeFieldDescr extends BaseDescr implements Comparable<TypeFieldDes
     public TypeFieldDescr(final String fieldName, final PatternDescr pat) {
     	this(fieldName);
     	this.pattern = pat;
+    }
+
+
+
+    public static TypeFieldDescr buildInheritedFromDefinition(FactField fld) {
+        PatternDescr fldType = new PatternDescr();
+        TypeFieldDescr inheritedFldDescr = new TypeFieldDescr();
+        inheritedFldDescr.setFieldName(fld.getName());
+        fldType.setObjectType(fld.getType().getName());
+        inheritedFldDescr.setPattern(fldType);
+        if (fld.isKey()) inheritedFldDescr.addMetaAttribute("key","key");
+        inheritedFldDescr.setIndex(fld.getIndex());
+        inheritedFldDescr.setInherited(true);
+        return inheritedFldDescr;
+
+    }
+
+
+    public TypeFieldDescr cloneAsInherited() {
+        TypeFieldDescr fieldDescr = new TypeFieldDescr(fieldName,pattern);
+        fieldDescr.setInitExpr(initExpr);
+        for (String key : metaAttributes.keySet())
+            fieldDescr.addMetaAttribute(key,metaAttributes.get(key));
+        fieldDescr.setIndex(index);
+        fieldDescr.setInherited(true);
+
+        return fieldDescr;
     }
 
     /**
@@ -178,14 +208,26 @@ public class TypeFieldDescr extends BaseDescr implements Comparable<TypeFieldDes
         return (this.index - other.index);
     }
 
-
     public int getIndex() {
+        if (index < 0 && getMetaAttribute("position") != null) {
+            setIndex(Integer.valueOf(getMetaAttribute("position")));
+        }
         return index;
     }
 
     public void setIndex(int index) {
         this.index = index;
     }
+
+
+    public boolean isInherited() {
+        return inherited;
+    }
+
+    public void setInherited(boolean inherited) {
+        this.inherited = inherited;
+    }
+
 
 
 

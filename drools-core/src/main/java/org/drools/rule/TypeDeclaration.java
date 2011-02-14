@@ -94,6 +94,22 @@ public class TypeDeclaration
     private ClassDefinition      typeClassDef;
     private Resource             resource;
     private boolean              dynamic;
+    private boolean              novel;
+
+
+
+
+    public boolean isNovel() {
+        return novel;
+    }
+
+    public void setNovel(boolean novel) {
+        this.novel = novel;
+    }
+
+
+
+
 
     private transient ObjectType objectType;
     private long                 expirationOffset = -1;

@@ -44,7 +44,6 @@ public class ClassDefinition
     private String                       superClass;
     private String[]                     interfaces;
     private transient Class< ? >         definedClass;
-
     private Map<String, FieldDefinition> fields = new LinkedHashMap<String, FieldDefinition>();
 
     public ClassDefinition() {
@@ -104,7 +103,7 @@ public class ClassDefinition
     }
 
     /**
-     * @param name The name to set.
+     * @param className The name to set.
      */
     public final void setClassName(final String className) {
         this.className = className;
@@ -118,7 +117,7 @@ public class ClassDefinition
     }
 
     /**
-     * @param className The class to set.
+     * @param definedClass The class to set.
      */
     public void setDefinedClass(final Class< ? > definedClass) {
 
@@ -133,6 +132,9 @@ public class ClassDefinition
         this.fields.put( attr.getName(),
                          attr );
     }
+
+
+
 
     /**
      * @return Returns an unmodifiable collection of field definitions

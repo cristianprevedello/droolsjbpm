@@ -166,6 +166,17 @@ public class ClassFieldInspector {
         return "/" + clazz.getCanonicalName() + ".class";
     }
 
+
+    /**
+     * sotty:
+     * Checks whether a returned field is actually a getter or not
+     * @param name the field to test
+     * @return true id the name does not correspond to a getter field
+     */
+    public boolean isNonGetter(String name) {
+        return nonGetters.contains(name);
+    }
+
     /**
      * Return a mapping of the field "names" (ie bean property name convention)
      * to the numerical index by which they can be accessed.

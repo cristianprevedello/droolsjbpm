@@ -28,12 +28,14 @@ import org.drools.definition.type.FactField;
  *
  * @author etirelli
  */
-public class FieldDefinition
-    implements
-    FactField {
+public class FieldDefinition implements FactField, Comparable<FieldDefinition> {
+
     private String             name     = null;
     private String             type     = null;
     private boolean            key      = false;
+    private boolean            inherited  = false;
+    private int                index      = -1;
+    private String initExpr = null;
 
     private ClassFieldAccessor accessor = null;
 
@@ -134,8 +136,6 @@ public class FieldDefinition
 
     /**
      * Creates the String name for the get method for a field with the given name and type
-     * @param name
-     * @param type
      * @return
      */
     public String getReadMethod() {
@@ -151,9 +151,6 @@ public class FieldDefinition
 
     /**
      * Creates the String name for the set method for a field with the given name and type
-     * 
-     * @param name
-     * @param type
      * @return
      */
     public String getWriteMethod() {
@@ -217,5 +214,150 @@ public class FieldDefinition
         this.accessor.setValue( bean,
                                 value );
     }
+
+
+
+    public boolean isInherited() {
+        return inherited;
+    }
+
+    public void setInherited(boolean inherited) {
+        this.inherited = inherited;
+    }
+
+
+
+
+    public int getIndex() {
+        return index;
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
+    }
+
+
+    public int compareTo(FieldDefinition other) {
+        return (this.index - other.index);
+    }
+
+
+
+
+    public void setInitExpr(String init) {
+        this.initExpr = init;
+    }
+
+    public String getInitExpr() {
+        return initExpr;
+    }
+
+
+    public String getDefaultValueAsString() {
+        return initExpr == null ? null : initExpr.substring(1,initExpr.length()-1);
+    }
+    public Boolean getDefaultValueAsBoolean() {
+        return "true".equals(initExpr);
+    }
+    public Byte getDefaultValueAsByte() {
+        try {
+            return initExpr == null ? 0 : Byte.parseByte(initExpr);
+        } catch (NumberFormatException nfe) {
+            return 0;
+        }
+    }
+    public Character getDefaultValueAsChar() {
+        return initExpr == null ? ' ' : initExpr.charAt(0);
+    }
+    public Double getDefaultValueAsDouble() {
+        try {
+            return initExpr == null ? 0.0 : Double.parseDouble(initExpr);
+        } catch (NumberFormatException nfe) {
+            return 0.0;
+        }
+    }
+    public Float getDefaultValueAsFloat() {
+        try {
+            return initExpr == null ? 0.0f : Float.parseFloat(initExpr);
+        } catch (NumberFormatException nfe) {
+            return 0.0f;
+        }
+    }
+    public Integer getDefaultValueAsInt() {
+        try {
+            return initExpr == null ? 0 : Integer.parseInt(initExpr);
+        } catch (NumberFormatException nfe) {
+            return 0;
+        }
+    }
+    public Long getDefaultValueAsLong() {
+        try {
+            return initExpr == null ? 0L : Long.parseLong(initExpr);
+        } catch (NumberFormatException nfe) {
+            return 0L;
+        }
+    }
+    public Short getDefaultValueAsShort() {
+        try {
+            return initExpr == null ? 0 : Short.parseShort(initExpr);
+        } catch (NumberFormatException nfe) {
+            return 0;
+        }
+    }
+
+
+    public boolean getDefaultValueAs_boolean() {
+        return "true".equals(initExpr);
+    }
+    public byte getDefaultValueAs_byte() {
+        try {
+            return initExpr == null ? 0 : Byte.parseByte(initExpr);
+        } catch (NumberFormatException nfe) {
+            return 0;
+        }
+    }
+    public char getDefaultValueAs_char() {
+        return initExpr == null ? ' ' : initExpr.charAt(0);
+    }
+    public double getDefaultValueAs_double() {
+        try {
+            return initExpr == null ? 0.0 : Double.parseDouble(initExpr);
+        } catch (NumberFormatException nfe) {
+            return 0.0;
+        }
+    }
+    public float getDefaultValueAs_float() {
+        try {
+            return initExpr == null ? 0.0f : Float.parseFloat(initExpr);
+        } catch (NumberFormatException nfe) {
+            return 0.0f;
+        }
+    }
+    public int getDefaultValueAs_int() {
+        try {
+            return initExpr == null ? 0 : Integer.parseInt(initExpr);
+        } catch (NumberFormatException nfe) {
+            return 0;
+        }
+    }
+    public long getDefaultValueAs_long() {
+        try {
+            return initExpr == null ? 0L : Long.parseLong(initExpr);
+        } catch (NumberFormatException nfe) {
+            return 0L;
+        }
+    }
+    public short getDefaultValueAs_short() {
+        try {
+            return initExpr == null ? 0 : Short.parseShort(initExpr);
+        } catch (NumberFormatException nfe) {
+            return 0;
+        }
+    }
+
+
+
+
+
 
 }

@@ -28,7 +28,18 @@ public class TypeDeclarationDescr extends BaseDescr implements Namespaceable {
     private Map<String, Map<String, String>> metaAttributes;
     private Map<String, TypeFieldDescr> fields;
     private String              superTypeName;
+    private String              superTypeNamespace;
     private Vector<String>      interfaceNames;
+    private TypeDeclarationDescr superDescr;
+
+
+    public TypeDeclarationDescr getSuperDescr() {
+        return superDescr;
+    }
+
+    public void setSuperDescr(TypeDeclarationDescr superDescr) {
+        this.superDescr = superDescr;
+    }
 
     public TypeDeclarationDescr() {
         this(null);
@@ -176,6 +187,24 @@ public class TypeDeclarationDescr extends BaseDescr implements Namespaceable {
 
     public void setInterfaceNames(Collection<String> interfaces) {
         this.interfaceNames.addAll(interfaceNames);
+    }
+
+
+    public String getSuperTypeNamespace() {
+        return superTypeNamespace;
+    }
+
+    public void setSuperTypeNamespace(String superTypeNamespace) {
+        this.superTypeNamespace = superTypeNamespace;
+    }
+
+    public int compareTo(TypeDeclarationDescr descr) {
+        int result = 0;
+        if (this.getSuperTypeName() == null && descr.getSuperTypeName() == null) result = 0;
+        else if (this.getSuperTypeName() != null && this.getSuperTypeName().equals(descr.getTypeName())) result = -1;
+        else if (descr.getSuperTypeName() != null && descr.getSuperTypeName().equals(this.getTypeName())) result = 1;
+        System.err.println("TypeDeclaration Descr compareTo : Compare descr "+ this.getTypeName() + " vs " + descr.getTypeName() + " >>  " + result);
+        return result;
     }
 
 

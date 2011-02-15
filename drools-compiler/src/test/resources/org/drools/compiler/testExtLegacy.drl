@@ -1,0 +1,31 @@
+package org.drools.extest;
+
+
+declare BetterLegacy extends LegacyBean
+    // novel field
+    oneMoreField = ("Hello") : String
+
+    // inherited fields redeclared to set initial value
+    doubleField = (3.3) : Double                    @position(1)  // tag inherited field, will be 1st field
+    strField = ("XX") : String
+    intField = (245) : int
+    prop = (true) : boolean
+    // objField is not redeclared
+end
+
+
+
+declare LegacyBean
+    objField : Object                       @position(2)  // tag existing field, will be 2nd field
+end
+
+
+
+/*
+  declare LegacyBean <--- actually an external POJO
+    doubleField : Double                    @position(1)  // tag inherited field, will be 1st field
+    strField  : String
+    intField  : int
+    // prop : boolean      -->  in turn, inherited from a superclass of LegacyBean
+    objField : Object
+*/

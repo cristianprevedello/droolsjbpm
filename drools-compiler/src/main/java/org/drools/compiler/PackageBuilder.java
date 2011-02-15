@@ -1141,7 +1141,14 @@ public class PackageBuilder {
         // make sure namespace is set on components
         for ( TypeDeclarationDescr typeDescr : packageDescr.getTypeDeclarations() ) {
             if ( isEmpty( typeDescr.getNamespace() ) ) {
-                typeDescr.setNamespace( packageDescr.getNamespace() );
+                for (ImportDescr id : packageDescr.getImports()) {
+                    String imp = id.getTarget();
+                    if (imp.endsWith(typeDescr.getTypeName())) {
+                        typeDescr.setNamespace(imp.substring(0,imp.lastIndexOf('.')));
+                    }
+                }
+                if (isEmpty(typeDescr.getNamespace()))
+                    typeDescr.setNamespace( packageDescr.getNamespace() );
             }
 
             //identify superclass type and namespace
@@ -1156,7 +1163,7 @@ public class PackageBuilder {
         for ( TypeDeclarationDescr typeDescr : sortedTypeDescriptors ) {
 
 
-            pkgRegistry = this.pkgRegistryMap.get( typeDescr.getNamespace() );
+            pkgRegistry = this.pkgRegistryMap.get( packageDescr.getNamespace() );
 
             //descriptor needs fields inherited from superclass
             mergeInheritedFields(typeDescr);
@@ -1202,9 +1209,9 @@ public class PackageBuilder {
                             type,
                             pkgRegistry );
 
+
                     clazz = pkgRegistry.getTypeResolver().resolveType( className );
                     type.setTypeClass( clazz );
-
 
 
                     if ( type.getTypeClassDef() != null ) {
@@ -1217,6 +1224,7 @@ public class PackageBuilder {
                             continue;
                         }
                     }
+
 
 
 
@@ -1274,7 +1282,7 @@ public class PackageBuilder {
                 reg.getTypeResolver().resolveType(typeDescr.getNamespace() + "." + typeDescr.getTypeName());
                 return false;
             } else {
-                return true;
+                return false;
             }
         } catch (ClassNotFoundException cnfe) {
             return true;

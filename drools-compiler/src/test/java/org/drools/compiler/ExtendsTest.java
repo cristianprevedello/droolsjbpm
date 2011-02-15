@@ -156,7 +156,7 @@ public class ExtendsTest extends TestCase {
     public void testExtendsLegacy() throws Exception {
         StatefulKnowledgeSession ksession = genSession("testExtLegacy.drl",0);
 
-        FactType leg = ksession.getKnowledgeBase().getFactType("org.drools.extest","BetterLegacy");
+        FactType leg = ksession.getKnowledgeBase().getFactType("org.drools.compiler","BetterLegacy");
         assertNotNull(leg);
 
         Object b = leg.newInstance();
